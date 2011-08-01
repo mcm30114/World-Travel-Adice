@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"> 
+<html version="XHTML+RDFa 1.0"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    > 
+    <head> 
+        <title>Fco</title> 
+        <meta name="viewport" content ="user-scalable=no, width=device-width" />
+        <style type="text/css">
+            BODY
+            
+            {
+                
+                background-color: #DDD;
+                
+                color: #222;
+                
+                font-family: Helvetica;
+                
+                font-size: 14px;
+                
+                margin: 0;
+                
+                padding: 0;
+                
+            }
+            
+            H1
+            
+            {
+                
+                margin: 0;
+                
+                padding: 0;
+                
+                background-color: #CCC;
+                
+                border-bottom: 1px solid #666;
+                
+                color: #222;
+                
+                display: block;
+                
+                font-size: 17px;
+                
+                font-weight: bold;
+                
+                padding: 10px 1px;
+                
+                text-align: center;
+                
+                text-decoration: none;
+                
+            }
+            
+            H2
+            
+            {
+                
+                margin: 5px;
+                
+                padding: 0;
+                
+                display: block;
+                
+                font-size: 17px;
+                
+                font-weight: bold;
+                
+                padding: 10px 1px;
+                
+                text-align: left;
+                
+                text-decoration: none;
+                
+            }
+            
+            H3
+            
+            {
+                
+                margin: 0;
+                
+                padding: 0;
+                
+                display: block;
+                
+                font-size: 16px;
+                
+                font-weight: bold;
+                
+                padding: 10px 1px;
+                
+                text-align: left;
+                
+                text-decoration: none;
+                
+            }
+            
+            #Main
+            
+            {
+                
+                margin: 0px;
+                
+                padding: 0px;
+                
+                display: block;
+                
+            }
+            
+            .NewsHeader P
+            
+            {
+                
+                margin: 5px;
+                
+                padding: 10px 2px 0px;
+                
+            }
+            
+            .NewsHeader
+            
+            {
+                
+                padding: 5px 5px 5px 14px;
+                
+                color: #35496A;
+                
+                width: 92%;
+                
+            }
+            
+            .MainContentImageNews
+            
+            {
+                
+                margin: 3px;
+                
+                padding: 0px;
+                
+                border: 2px solid #CACACA;
+                
+                float: right;
+                
+            }
+            
+            .MainContentImageNews P
+            
+            {
+                
+                margin: 10px;
+                
+                padding: 5px;
+                
+                color: #999;
+                
+            }
+            
+            #Main P
+            
+            {
+                
+                width: 96%;
+                
+                margin-left: 14px;
+                
+            }
+            
+            .HorizontalLine
+            
+            {
+                
+                display: none;
+                
+            }
+
+            </style>
+    </head> 
+    <body> 
+        
+        
+        

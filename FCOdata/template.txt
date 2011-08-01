@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"> 
+<html version="XHTML+RDFa 1.0"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    > 
+    <head> 
+        <title>Fco</title> 
+        <meta name="viewport" content ="user-scalable=no, width=device-width" />
+        <style type="text/css">
+            body {
+                background-color: #ddd;
+                color:#222;
+                font-family: Helvetica;
+                font-size:14px;
+                margin:0;
+                padding:0;
+            }
+            #content h1{
+                margin: 0;
+                padding: 0;
+                background-color: #ccc;
+                border-bottom: 1px solid #666;
+                color: #222;
+                display: block;
+                font-size: 20px;
+                font-weight: bold;
+                padding: 10px 1px;
+                text-align:center;
+                text-decoration: none;
+                
+                
+            }
+            
+            #content ul{
+                list-style: none;
+                margin: 5px;
+                padding: 0px;
+            }
+            #content .section_links li a {
+                background-color: #FFFFFF;
+                border:1px solid #999999;
+                color:#222222;
+                display: block;
+                font-size: 17px;
+                font-weight: bold;
+                margin-bottom: -1px;
+                padding: 12px 10px;
+                text-decoration: none;
+            }
+            #content a{
+                display:none;
+            }
+            #content dl{
+                display:none;
+            }
+            #sections .section h2{
+                
+                display: block;
+                font-size: 19px;
+                margin-bottom: -1px;
+                padding: 12px 10px;
+                text-decoration: underline;
+                text-align:center;
+            }
+            #content ul li:first-child a {
+                -webkit-border-top-left-radius: 8px;
+                -webkit-border-top-right-radius: 8px;
+            }
+            #content ul li:last-child a{
+                -webkit-border-bottom-left-radius: 8px;
+                -webkit-border-bottom-right-radius:8px;
+            }
+            #sections li a{
+                style:none;
+            }
+            </style>
+    </head> 
+    <body> 
+      
+        
+        

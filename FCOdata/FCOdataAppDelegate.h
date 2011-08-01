@@ -7,6 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <iAd/iAd.h>
+
+#define SharedAdBannerView ((FCOdataAppDelegate *)[[UIApplication sharedApplication] delegate]).adBanner
 
 @interface FCOdataAppDelegate : NSObject <UIApplicationDelegate, UITabBarControllerDelegate> {
 

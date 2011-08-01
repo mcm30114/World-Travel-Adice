@@ -7,7 +7,7 @@
 //
 
 #import "FCOdataAppDelegate.h"
-
+#import "FlurryAPI.h"
 @implementation FCOdataAppDelegate
 
 
@@ -15,12 +15,19 @@
 
 @synthesize tabBarController=_tabBarController;
 
+void uncaughtExceptionHandler(NSException *exception) {
+    [FlurryAPI logError:@"Uncaught" message:@"Crash!" exception:exception];
+}
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
     // Add the tab bar controller's current view as a subview of the window
     self.window.rootViewController = self.tabBarController;
     [self.window makeKeyAndVisible];
+    
+    //initialize flurry analytics
+    NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
+    [FlurryAPI startSession:@"UD4DIV4RUTJS31HR62G3"];
     return YES;
 }
 
@@ -64,7 +71,7 @@
 }
 
 - (void)dealloc
-{
+{   
     [_window release];
     [_tabBarController release];
     [super dealloc];
