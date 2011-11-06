@@ -3,7 +3,7 @@
 //  CrimePlotter
 //
 //  Created by Ray Wenderlich on 3/21/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Elixr Labs. All rights reserved.
 //
 
 #import "MyLocation.h"

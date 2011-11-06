@@ -2,8 +2,8 @@
 //  newsDetailViewController.m
 //  FCOdata
 //
-//  Created by Edwin on 22/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Created by Edwin Bosire (@edwinbosire) on 22/07/2011.
+//  Copyright 2011 Elixr Labs. All rights reserved.
 //
 
 #import "newsDetailViewController.h"
@@ -13,8 +13,7 @@
 @synthesize url;
 @synthesize webView;
 
-@synthesize banner;
-@synthesize contentView;
+
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -27,9 +26,7 @@
 
 - (void)dealloc
 {
-    [contentView release]; contentView = nil;
-    banner.delegate = nil;
-    [banner release]; banner = nil; 
+
 
     [super dealloc];
 }
@@ -54,24 +51,16 @@
     // Do any additional setup after loading the view from its nib.
     self.title = @"News";
     
-    //iAd integration
-    banner.delegate = self;
-    self.banner.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifierPortrait, ADBannerContentSizeIdentifierLandscape, nil];
-    
-    [self layoutForCurrentOrientation:NO];
+
 }
 -(void) viewWillAppear:(BOOL)animated{
-    animated = YES;
     [self downloadNews:url];
-    [self layoutForCurrentOrientation:NO];
 
 }
 - (void)viewDidUnload
 {
     [super viewDidUnload];
-    [contentView release]; contentView = nil;
-    banner.delegate = nil;
-    [banner release]; banner = nil; 
+ 
 
 }
 
@@ -95,7 +84,7 @@
     //instantiate a string type and populate appropriately only if data is downloaded
     if (data !=nil) {
         /*make a string out of this data */
-        NSString *responseData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSString *responseData = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]autorelease];
         //call copyResponseString and pass the response string as parameter
         
         [self copyResponseString:responseData];
@@ -125,21 +114,7 @@
 /*extract the exact information needed, discard the rest of the page, return 
  "parsed" string containg this information*/
 -(NSString *)stringScanner:(NSString *) stringToScan{
-    /*
-    NSRange beginning = [stringToScan rangeOfString:@"<div class=\"content\">"];
-    NSRange ending    = [stringToScan rangeOfString:@"</body>"];
-    NSRange finale;
-    
-    int length = ending.location - beginning.location - ending.length;
-    int loco=ending.location + ending.length;
-    finale.location = loco;
-    finale.length = length;
-    NSLog(@"range %@", finale);
-    NSString *contents = [contents substringWithRange:finale];
-    NSLog(@"contents %@", contents);
-    
-    return contents;
-     */
+
     
     NSString *HEADER = @"<div id=\"Main\">";
     NSString *CONTENT;
@@ -172,7 +147,7 @@
     NSError *error = nil;
     
     //retrieve html template as a string
-    NSString *fileContents = [NSString stringWithContentsOfFile:bundlePath encoding:NSUTF8StringEncoding error:&error]; 
+    NSString *fileContents = [[NSString stringWithContentsOfFile:bundlePath encoding:NSUTF8StringEncoding error:&error]autorelease]; 
     [fileContents retain];
     //usual error mechanism
     if(error){
@@ -196,66 +171,6 @@
      NSURL *baseURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]];
     */
      [webView loadHTMLString:fullHTML baseURL:[NSURL URLWithString:@"http://www.fco.gov.uk/"]];
-}
-
--(void)layoutForCurrentOrientation:(BOOL)animated
-{
-    CGFloat animationDuration = animated ? 0.2f : 0.0f;
-    // by default content consumes the entire view area
-    CGRect contentFrame = self.view.bounds;
-    // the banner still needs to be adjusted further, but this is a reasonable starting point
-    // the y value will need to be adjusted by the banner height to get the final position
-	CGPoint bannerOrigin = CGPointMake(CGRectGetMinX(contentFrame), CGRectGetMaxY(contentFrame));
-    CGFloat bannerHeight = 0.0f;
-    
-	
-    self.banner.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
-    bannerHeight = self.banner.bounds.size.height;
-	
-    // Depending on if the banner has been loaded, we adjust the content frame and banner location
-    // to accomodate the ad being on or off screen.
-    // This layout is for an ad at the bottom of the view.
-    if(self.banner.bannerLoaded)
-    {
-        contentFrame.size.height -= bannerHeight;
-		bannerOrigin.y -= bannerHeight;
-    }
-    else
-    {
-		bannerOrigin.y += bannerHeight;
-    }
-    
-    // And finally animate the changes, running layout for the content view if required.
-    [UIView animateWithDuration:animationDuration
-                     animations:^{
-                         contentView.frame = contentFrame;
-                         [contentView layoutIfNeeded];
-                         self.banner.frame = CGRectMake(bannerOrigin.x, bannerOrigin.y, self.banner.frame.size.width, self.banner.frame.size.height);
-                     }];
-}
-#pragma mark -
-#pragma mark ADBannerViewDelegate methods
-
-- (void)bannerViewDidLoadAd:(ADBannerView *)banner
-{
-    [self layoutForCurrentOrientation:YES];
-}
-
-- (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
-{
-    [self layoutForCurrentOrientation:YES];
-    NSLog(@"iAd has caused an error in news");
-    
-}
-
-- (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave
-{
-    return YES;
-}
-
-- (void)bannerViewActionDidFinish:(ADBannerView *)banner
-{
-	
 }
 
 

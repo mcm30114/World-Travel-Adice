@@ -2,14 +2,18 @@
 //  countriesDetailView.h
 //  FCOdata
 //
-//  Created by Edwin on 27/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
-//
+//  Created by Edwin Bosire (@edwinbosire) on 27/07/2011.
+//  Copyright 2011 Elixr Labs. All rights reserved.
+/*
+ note to self : for the next version of this app, split up this class into two separate
+ view controllers!!
+ */
 
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
 #import <iAd/iAd.h>
-@interface countriesDetailView : UIViewController <UIWebViewDelegate, ADBannerViewDelegate>{
+#import <CoreData/CoreData.h>
+@interface countriesDetailView : UIViewController <UIWebViewDelegate>{
     IBOutlet UILabel *  countryTitle;
     IBOutlet UILabel * location;
     IBOutlet UILabel * designation;
@@ -28,9 +32,10 @@
     NSString *_name;
     
     UIView *contentView;
-    ADBannerView *banner;
-    BOOL isAdBannerViewVisible;
-
+    UIView *secondContentView;
+   
+    //coredata
+    NSManagedObject *managedObject;
 }
 @property (nonatomic, retain) UILabel *  countryTitle;
 @property (nonatomic, retain) UILabel * location;
@@ -41,11 +46,11 @@
 @property (nonatomic, readwrite) NSUInteger  _index;
 @property (nonatomic, retain) UISegmentedControl * segmentControl;
 @property (nonatomic, retain) IBOutlet UIView *contentView;
-@property (nonatomic, retain) IBOutlet ADBannerView *banner;
 @property (nonatomic, retain) IBOutlet UIScrollView *scrollView;
-@property (nonatomic) BOOL isAdBannerViewVisible;
+@property (nonatomic, retain) IBOutlet UIView *secondContentView;
+@property (nonatomic, retain) NSManagedObject *managedObject;
 
-- (id)initWithItem:(NSMutableArray *)theItem :(NSUInteger)indx;
+- (id)initWithItem:(NSManagedObject *)theItem;
 -(void) swapViews;
 -(void) setResponse :(NSString *) string;
 -(void) returnFullDetails;
@@ -54,6 +59,5 @@
 -(NSString *) stringScan :(NSString *)string;
 -(NSString *) loadHTMLFile;
 
--(void)layoutForCurrentOrientation:(BOOL)animated;
 
 @end

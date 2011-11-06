@@ -2,8 +2,8 @@
 //  asynchImage.m
 //  FCOdata
 //
-//  Created by Edwin on 19/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Created by Edwin Bosire (@edwinbosire) on 19/07/2011.
+//  Copyright 2011 Elixr Labs. All rights reserved.
 //
 
 #import "asynchImage.h"

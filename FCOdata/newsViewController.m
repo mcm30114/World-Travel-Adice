@@ -3,18 +3,20 @@
 //  FCOdata
 //
 //  Created by denis bosire on 16/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Elixr Labs. All rights reserved.
 //
 
 #import "newsViewController.h"
 #import "retrieveData.h"
-#import "newsItem.h"
 #import "ASIHTTPRequest.h"
 #include "SBJson.h"
 #import "newsDetailViewController.h"
 #import "customCell.h"
-@implementation newsViewController
+#import "retrieveData.h"
 
+@implementation newsViewController
+@synthesize newsItems;
+@synthesize RetrieveData;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -35,7 +37,8 @@
 
 }
 
--(void) grabData :(NSURL *)_myURL{
+-(void) grabData{
+    NSURL *_myURL =[NSURL URLWithString:@"http://fco.innovate.direct.gov.uk/travel-news.json"];
     
     __block ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:_myURL];
     [request setCompletionBlock:^{
@@ -43,27 +46,59 @@
         
         responseString = [request responseString];
         NSMutableArray *results = [responseString JSONValue];
-        titles = [[NSArray alloc] initWithArray:[[results valueForKey:@"travel_news"] valueForKey:@"title"]];
-       desc = [[NSArray alloc] initWithArray:[[results valueForKey:@"travel_news"] valueForKey:@"description"]];
-        
-        url = [[NSArray alloc] initWithArray:[[results valueForKey:@"travel_news"] valueForKey:@"original_url"]];
-        pubDate = [[NSArray alloc] initWithArray:[[results valueForKey:@"travel_news"] valueForKey:@"published_on"]];
-        
-        [self refreshData];
-       // [titles retain];
-    }];
-    [request setFailedBlock:^{
-        NSError *error = [request error];
-        if(error){
+        if (results != NULL) {
+            [self performSelectorOnMainThread:@selector(downloadPublicData:) withObject:results waitUntilDone:YES];
+            //[self downloadPublicData:results]; 
+            
+            
+            
+        }else{
+            NSLog(@"results is empty");
             UIAlertView *alert = [[UIAlertView alloc]
-                                  initWithTitle:@"Error" message:@"There is a Problem" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+                                  initWithTitle:@"Error" message:@"No Internet Connection, try again later" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
             [alert show];
             [alert release];
-        }//alert
+        }
     }];
     [request startAsynchronous];
     
 }
+-(void) downloadPublicData :(NSMutableArray *) array{
+    
+    [self performSelectorInBackground:@selector(synchronizeData:) withObject:array];
+    NSLog(@"process sent to background thread");
+    
+}
+-(void)reloadTable{
+    [newsItems release];
+    newsItems = [[RetrieveData newsList]retain];
+    [self.tableView reloadData];
+}
+
+//method perfomed in background thread
+- (void)synchronizeData:(NSArray*)data 
+{
+    
+    //listen for a notification with the name of the identifier
+	[[NSNotificationCenter defaultCenter] addObserver:self 
+                                             selector:@selector(dataDidSynchronize:) 
+                                                 name:@"newsDidSynchronize" 
+                                               object:nil];
+    NSLog(@"synchronize data method called");
+    
+    [RetrieveData synchronizeNewsList:data];
+    
+}
+//this is also in the background thread
+- (void)dataDidSynchronize:(NSNotification*)notification 
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    //update the UI on the main thread
+    NSLog(@"refreshUI called on main thread with notif ");
+    [self performSelectorOnMainThread:@selector(reloadTable) withObject:nil waitUntilDone:YES];
+}
+
 
 - (void)didReceiveMemoryWarning
 {
@@ -76,27 +111,29 @@
 #pragma mark - View lifecycle
 
 - (void)viewDidLoad
-{
+{   
     [super viewDidLoad];
-
-    UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self  action:@selector(refreshData)];
+    //init the retrievedata class
+    RetrieveData = [[retrieveData alloc] init];
+    
+    newsItems = [[RetrieveData newsList]retain];
+    
+    UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self  action:@selector(grabData)];
     
     self.navigationItem.title = @"News";
     self.navigationItem.rightBarButtonItem = refreshButton;
     self.tabBarController.tabBarItem.badgeValue = nil;
-    NSURL *_myURL =[NSURL URLWithString:@"http://fco.innovate.direct.gov.uk/travel-news.json"];
-   
-    [self grabData:_myURL];
     
+    [refreshButton release];
+    if (newsItems.count ==0) {
+        [self grabData];
+    }
     
-     
 }
 
 - (void)viewDidUnload
 {
     [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -131,13 +168,14 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
+    //return [[RetrieveData.fetchedResultsController sections] count];
     return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return titles.count;
+    return [[[RetrieveData newsList]valueForKey:@"titles"]count];
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -161,22 +199,22 @@
     }
     
     // Configure the cell...
-    if (!titles) {
-        cell.newsTitle.text = @"loading.....";
-    }
-     //NSLog(@"row %@",[titles objectAtIndex:[indexPath row]]);
-    cell.newsTitle.text = [titles objectAtIndex:[indexPath row]];
+    if (!newsItems) {
+        cell.newsTitle.text = @"     Loading";
+    }else{
+    cell.newsTitle.text = [[newsItems objectAtIndex:[indexPath row]]valueForKey:@"titles"];
     //cell.newsSummary.numberOfLines = 3;
-    cell.newsSummary.text = [desc objectAtIndex:[indexPath row]];
-    
+    cell.newsSummary.text = [[newsItems objectAtIndex:[indexPath row]]valueForKey:@"summary"];
+        cell.dateLabel.text = [[newsItems objectAtIndex:[indexPath row]]valueForKey:@"pudDate"];
+    }
   
     
-    /*formate the date entry */
+    /*formate the date entry 
     NSString *theDate = [pubDate objectAtIndex:[indexPath row]];
     NSArray *trimDate = [theDate componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"T+"]];
     cell.dateLabel.text = [NSString stringWithFormat:@"%@,%@",[trimDate objectAtIndex:0],[trimDate objectAtIndex:1]];
     
-    
+    */
     
     return cell;
 }
@@ -229,7 +267,7 @@
      newsDetailViewController *dvc = [[newsDetailViewController alloc] initWithNibName:@"newsDetailViewController"bundle:nil];
      // ...
      // Pass the selected object to the new view controller.
-    NSString *tmpURL = [url objectAtIndex:[indexPath row]];
+    NSString *tmpURL = [[newsItems objectAtIndex:[indexPath row]]valueForKey:@"link"];
     //NSString *jsonURL=[tmpURL stringByAppendingString:@".json"];
     //NSLog(@"jsonURL %@", jsonURL);
     dvc.url = [NSURL URLWithString:tmpURL];

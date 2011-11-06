@@ -3,7 +3,7 @@
 //  FCOdata
 //
 //  Created by denis bosire on 17/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Elixr Labs. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -37,7 +37,5 @@
 
 
 
-//===========methods=========
--(id) init :(NSString *) _countryName :(NSString *)_flagURL :(NSString *)_address :(NSString *)_designation :(NSString *)_email :(NSString *)_locationName :(NSString *)_officeHours :(NSString *)_phone :(NSString *)_url :(NSInteger) _lat :(NSInteger) _lng;
 
 @end

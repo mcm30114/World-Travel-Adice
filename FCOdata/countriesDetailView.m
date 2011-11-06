@@ -2,12 +2,15 @@
 //  countriesDetailView.m
 //  FCOdata
 //
-//  Created by Edwin on 19/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Created by Edwin Bosire (@edwinbosire) on 19/07/2011.
+//  Copyright 2011 Elixr Labs. All rights reserved.
 //
 
 #import "countriesDetailView.h"
 #import "MyLocation.h"
+#import "UIImageView+WebCache.h"
+#import <QuartzCore/QuartzCore.h>
+
 #define METERS_PER_MILE 1609.344
 
 @implementation countriesDetailView
@@ -18,10 +21,10 @@
 @synthesize dataSet;
 @synthesize _index;
 @synthesize segmentControl;
-@synthesize banner;
 @synthesize contentView;
 @synthesize scrollView;
-@synthesize isAdBannerViewVisible;
+@synthesize secondContentView;
+@synthesize managedObject;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -31,20 +34,9 @@
     return self;
 }
 
--(id) initwithName :(NSString *)_countryTitle :(NSString *)_location :(NSString *)_designation:(NSString *)_address :(UIImage *)_flagImage{
-    self.countryTitle.text = _countryTitle;
-    self.location.text = _location;
-    self.designation.text=_designation;
-    self.address.text=_address;
-    self.flagImage.image=_flagImage;
-    
-    return self;
-}
 
-- (id)initWithItem:(NSMutableArray *)theItem :(NSUInteger)indx{
-    self.dataSet = theItem;
-    self._index = (NSUInteger)indx;
-
+- (id)initWithItem:(NSManagedObject *)theObject{
+    self.managedObject = theObject;
     self.hidesBottomBarWhenPushed  =YES;
     return self;   
 }
@@ -83,8 +75,7 @@
     [flagImage release];
     
     [contentView release]; contentView = nil;
-    banner.delegate = nil;
-    [banner release]; banner = nil; 
+    [secondContentView release]; secondContentView = nil;
     [super dealloc];
 }
 
@@ -101,7 +92,10 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    //set the nav bar
+    //set the background
+    self.view.backgroundColor = [UIColor clearColor];
+    
+    self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"carbon_fibre_v2.png"]];
 
     /*set up the webView*/
     webView.delegate = self;
@@ -119,108 +113,58 @@
     segmentControl.selectedSegmentIndex=0;
     self.navigationItem.rightBarButtonItem= barItem;
     
-    //iAd integration
-    banner.delegate = self;
-    self.banner.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifierPortrait, ADBannerContentSizeIdentifierLandscape, nil];
     
-    [self layoutForCurrentOrientation:NO];
-
-
-}
--(void) viewWillAppear:(BOOL)animated{
-    animated = YES;
-    [self layoutForCurrentOrientation:NO];
-    NSDictionary *jsonDict;
-    //jsonDict= [dataSet valueForKeyPath:@"country"];
-    jsonDict= [[self.dataSet objectAtIndex:_index] objectForKey:@"country"];
+    [barItem release];
+    //populate Data
+    countryTitle.text = [managedObject valueForKey:@"name"];
+    designation.text = [managedObject valueForKey:@"designation"];
+    NSLog(@"designation %@",[managedObject valueForKey:@"designation"]);
+    location.text = [managedObject valueForKey:@"city"];
+    address.text = [managedObject valueForKey:@"address"];
     
-    //======================Retrieve Elements=================================
-    _name = [jsonDict valueForKey:@"name"];
-    id _flagURL = [jsonDict valueForKey:@"flag_url"];
-    
-    NSString *checkedURL = [NSString stringWithFormat:@"%@", _flagURL];
-    NSLog(@"url %@",checkedURL);
-    NSArray *_address = [[[jsonDict valueForKey:@"embassies"]
-                          valueForKey:@"address"]valueForKey:@"plain"];
-    NSArray *_designation = [[jsonDict valueForKey:@"embassies"]
-                             valueForKey:@"designation"];
-    NSArray *_locationName = [[jsonDict valueForKey:@"embassies"]
-                              valueForKey:@"location_name"];
-    NSArray *_officeHours = [[[jsonDict valueForKey:@"embassies"]
-                              valueForKey:@"office_hours"]
-                             valueForKey:@"plain"];
-    NSArray *_phone = [[jsonDict valueForKey:@"embassies"]
-                       valueForKey:@"phone"];
-    NSArray *_lat = [[jsonDict valueForKey:@"embassies"]
-                     valueForKey:@"lat"];
-    NSArray *_lng = [[jsonDict valueForKey:@"embassies"]
-                     valueForKey:@"long"];
-    if(!_designation) 
-        [_designation arrayByAddingObject:@"Not Available"];
-    
-    
-    //checking for nulls
-    NSArray *_embassy = [jsonDict valueForKey:@"embassies"];
-    if (_embassy.count == 0) {
-        NSLog(@"no information available");
-    }
-    if (_designation.count == 0) {
-        NSLog(@"some data missing");
-        _designation = [NSArray arrayWithObject: @""];
-    }if (_locationName.count == 0) {
-        _locationName = [NSArray arrayWithObject: @""];
-    }if (_officeHours.count == 0) {
-        _officeHours= [NSArray arrayWithObject: @"Not Available"];
-    }if (_address.count == 0) {
-        _address = [NSArray arrayWithObject: @"Not Available"];
-    }if (_phone.count == 0) {
-        _phone = [NSArray arrayWithObject: @"Not Available"];
-    }if ([_lng count]==0) {
-        _lat = [NSArray arrayWithObject:@"0.00"];
-        _lng = [NSArray arrayWithObject:@"0.00"];
-    }if ((NSNull *)_flagURL == [NSNull null]) {
-        NSLog(@"flag url is empty");
-        _flagURL = @"http://bentilden.com/images/placeholder.png";
-    }
-    
-    
-    //====================Assign Labels=========================================
-    //self.title = _name;
-    countryTitle.text = _name;//[NSString stringWithFormat:@"%@",_name];
-    NSString *locat = [NSString stringWithFormat:@"%@",[_locationName objectAtIndex:0]];
-    NSString *desig =[NSString stringWithFormat:@"%@",[_designation objectAtIndex:0]];
-    designation.text = [NSString stringWithFormat:@"%@,  %@",desig, locat];
-    address.text =[NSString stringWithFormat:@"%@",[_address objectAtIndex:0]];
-    NSURL *url = [NSURL URLWithString:_flagURL];
-    UIImage *tmpIMG = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
-    flagImage.image = tmpIMG;
     
     //===================deal with mkmaps here =================================
     CLLocationCoordinate2D zoomLocation;
-    NSString *latt = [NSString stringWithFormat:@"%@",[_lat objectAtIndex:0]];
-    NSString *lngg = [NSString stringWithFormat:@"%@",[_lng objectAtIndex:0]];
-    zoomLocation.latitude = latt.doubleValue;
-    zoomLocation.longitude= lngg.doubleValue;
+    NSString *lat = [managedObject valueForKey:@"latitude"];
+    NSString *lng = [managedObject valueForKey:@"longitude"];
+    zoomLocation.latitude = lat.doubleValue;
+    zoomLocation.longitude= lng.doubleValue;
     
     MKCoordinateRegion viewRegion = MKCoordinateRegionMakeWithDistance
     (zoomLocation,10*METERS_PER_MILE, 10*METERS_PER_MILE);
     MKCoordinateRegion adjustedRegion = [mapView regionThatFits:viewRegion];
     [mapView setRegion:adjustedRegion animated:YES];
     
-    MyLocation *annotation = [[[MyLocation alloc] initWithName:_name address:desig coordinate:zoomLocation] autorelease];
+    MyLocation *annotation = [[[MyLocation alloc] initWithName:[managedObject valueForKey:@"name"]
+                                                       address:[managedObject valueForKey:@"designation"]
+                                                    coordinate:zoomLocation] autorelease];
     [mapView addAnnotation:annotation];
-    
-    //[_address retain];
-    
-    
 
 }
+-(void) viewWillAppear:(BOOL)animated{
+    CALayer *layer = flagImage.layer;
+    layer.masksToBounds = YES;
+    [layer setCornerRadius:1.0];
+    layer.borderWidth=0.8;
+    layer.borderColor=[[UIColor blackColor] CGColor];
+    [flagImage setImageWithURL:[NSURL URLWithString:
+                                [managedObject valueForKey:@"thumbnail"]]
+              placeholderImage:[UIImage imageNamed:@"placeholder.jpg"]];
+
+    CALayer *layer2 = mapView.layer;
+    layer2.masksToBounds = YES;
+    [layer2 setCornerRadius:1.0];
+    layer2.borderWidth=0.8;
+    layer2.borderColor=[[UIColor blackColor] CGColor];
+   
+    //jsonDict= [dataSet valueForKeyPath:@"country"];
+    }
 -(void) setResponse :(NSString *) string{
     response = [[NSString alloc] initWithString:string];
 }
 
 -(void) returnFullDetails{
-    NSString *urlString = [NSString stringWithFormat:@"http://fco.innovate.direct.gov.uk/countries/%@/travel_advice_full", _name];
+    NSString *urlString = [NSString stringWithFormat:@"http://fco.innovate.direct.gov.uk/countries/%@/travel_advice_full", [managedObject valueForKey:@"name"]];
     
     //we are going to use a blocking synchronous call for this piece of data
     NSURL *url = [NSURL URLWithString:urlString];
@@ -234,14 +178,14 @@
     /*handle any errors*/
     if(error){
             UIAlertView *alert = [[UIAlertView alloc]
-                                  initWithTitle:@"Error" message:@"There is a Problem" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+                                  initWithTitle:@"Error" message:@"Sorry, The information you requested is not currently available" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
             [alert show];
             [alert release];
         }//alert
    /*was there a response, if so store it in a string*/
     if (data !=nil) {
         /*make a string out of this data */
-        NSString *responseData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSString *responseData = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]autorelease];
         [self setResponse:responseData];
         
     }
@@ -311,10 +255,10 @@
 - (void)viewDidUnload
 {
     [super viewDidUnload];
-    banner.delegate = nil;
-	[banner removeFromSuperview];
+   
 	
 	self.contentView = nil;
+    self.secondContentView = nil;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -322,72 +266,6 @@
     // Return YES for supported orientations
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
--(void)layoutForCurrentOrientation:(BOOL)animated
-{
-    CGFloat animationDuration = animated ? 0.2f : 0.0f;
-    // by default content consumes the entire view area
-    CGRect contentFrame = self.view.bounds;
-    // the banner still needs to be adjusted further, but this is a reasonable starting point
-    // the y value will need to be adjusted by the banner height to get the final position
-	CGPoint bannerOrigin = CGPointMake(CGRectGetMinX(contentFrame), CGRectGetMaxY(contentFrame));
-    CGFloat bannerHeight = 0.0f;
-    
-	
-    self.banner.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
-    bannerHeight = self.banner.bounds.size.height;
-	
-    // Depending on if the banner has been loaded, we adjust the content frame and banner location
-    // to accomodate the ad being on or off screen.
-    // This layout is for an ad at the bottom of the view.
-    if(self.banner.bannerLoaded)
-    {
-        contentFrame.size.height -= bannerHeight;
-		bannerOrigin.y -= bannerHeight;
-    }
-    else
-    {
-		bannerOrigin.y += bannerHeight;
-    }
-    
-    // And finally animate the changes, running layout for the content view if required.
-    [UIView animateWithDuration:animationDuration
-                     animations:^{
-                         contentView.frame = contentFrame;
-                         [contentView layoutIfNeeded];
-                         self.banner.frame = CGRectMake(bannerOrigin.x, bannerOrigin.y, self.banner.frame.size.width, self.banner.frame.size.height);
-                     }];
-}
-#pragma mark -
-#pragma mark ADBannerViewDelegate methods
 
-- (void)bannerViewDidLoadAd:(ADBannerView *)Abanner
-{   
-   
-        isAdBannerViewVisible = YES;
-        [self layoutForCurrentOrientation:YES];
-    
-    
-   
-}
-
-- (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
-{
-    NSLog(@"iAd has failed");
-    
-    [self layoutForCurrentOrientation:YES];
-    
-    
-    
-}
-
-- (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave
-{
-    return YES;
-}
-
-- (void)bannerViewActionDidFinish:(ADBannerView *)banner
-{
-	
-}
 
 @end

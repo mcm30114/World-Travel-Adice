@@ -2,8 +2,8 @@
 //  twitterFeed.m
 //  FCOdata
 //
-//  Created by Edwin on 27/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Created by Edwin Bosire (@edwinbosire) on 27/07/2011.
+//  Copyright 2011 Elixr Labs. All rights reserved.
 //
 
 #import "twitterFeed.h"
@@ -111,7 +111,7 @@
     /*handle any errors*/
     if(error){
         UIAlertView *alert = [[UIAlertView alloc]
-                              initWithTitle:@"Error" message:@"Check Your Internet Fool!" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+                              initWithTitle:@"Error" message:@"Please Check Your Internet!" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
         [alert show];
         [alert release];
     }//alert
@@ -155,7 +155,7 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
-        cell.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"middleRowneat.png"]];
+        cell.backgroundColor = [UIColor whiteColor];
         cell.imageView.backgroundColor = [UIColor clearColor];
         cell.textLabel.backgroundColor = [UIColor clearColor];
         cell.detailTextLabel.backgroundColor=[UIColor clearColor];
@@ -192,13 +192,13 @@
 	//cell.detailTextLabel.text =[[tweets objectAtIndex:indexPath.row] objectForKey:@"from_user"];
 	
 	NSURL *url = [NSURL URLWithString:[aTweet objectForKey:@"profile_image_url"]];
-    [cell.imageView setImageWithURL:url
-                   placeholderImage:[UIImage imageNamed:@"placeholder.jpg"]];
+    UIImage *image = [[UIImage alloc] initWithData:[NSData dataWithContentsOfURL:url]];
+    [cell.imageView setImage:image];
     CALayer *layer = cell.imageView.layer;
     layer.masksToBounds = YES;
-    layer.borderWidth=2.0;
-    layer.borderColor=[[UIColor darkGrayColor] CGColor];
-    [layer setCornerRadius:10.0];
+    layer.borderWidth=1.0;
+    layer.borderColor=[[UIColor blackColor] CGColor];
+    [layer setCornerRadius:2.0];
 	cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }

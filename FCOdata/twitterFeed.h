@@ -2,8 +2,8 @@
 //  twitterFeed.h
 //  FCOdata
 //
-//  Created by Edwin on 27/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Created by Edwin Bosire (@edwinbosire) on 27/07/2011.
+//  Copyright 2011 Elixr Labs. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

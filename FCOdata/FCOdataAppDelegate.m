@@ -3,11 +3,13 @@
 //  FCOdata
 //
 //  Created by denis bosire on 16/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Elixr Labs. All rights reserved.
 //
 
 #import "FCOdataAppDelegate.h"
 #import "FlurryAPI.h"
+
+#define FLURRY_API  @"YOUR_FLURRY_API_CODE_HERE"
 @implementation FCOdataAppDelegate
 
 
@@ -27,7 +29,8 @@ void uncaughtExceptionHandler(NSException *exception) {
     
     //initialize flurry analytics
     NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
-    [FlurryAPI startSession:@"UD4DIV4RUTJS31HR62G3"];
+    [FlurryAPI startSession:FLURRY_API];
+   // NSLog(@"flurry started");
     return YES;
 }
 

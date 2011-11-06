@@ -23,7 +23,7 @@
     // Remove in progress downloader from queue
     [manager cancelForDelegate:self];
 
-    self.image = [placeholder imageScaledToSize:CGSizeMake(80, 65)];
+    self.image = [placeholder imageScaledToSize:CGSizeMake(50, 40)];
 
     if (url)
     {
@@ -38,7 +38,7 @@
 
 - (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image
 {
-    self.image = [image imageScaledToSize:CGSizeMake(80 , 65)];
+    self.image = [image imageScaledToSize:CGSizeMake(50 , 40)];
      
 }
 

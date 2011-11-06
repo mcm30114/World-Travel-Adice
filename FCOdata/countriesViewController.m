@@ -3,7 +3,7 @@
 //  FCOdata
 //
 //  Created by denis bosire on 16/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Elixr Labs. All rights reserved.
 //
 
 #import "countriesViewController.h"
@@ -18,7 +18,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import "CustomNavigationBar.h"
 #import "UINavigationBarCategory.h"
-
+#import "offlineModeDataStore.h"
+#import "OfflineList.h"
 
 @implementation countriesViewController
 @synthesize _dataItems;
@@ -29,7 +30,9 @@
 @synthesize  savedSearchTerm;
 @synthesize reverse;
 @synthesize imageURL;
-
+@synthesize OflineModeDataStore;
+@synthesize offlineList;
+@synthesize contentForthisRow;
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -65,17 +68,18 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    //customize the navigation bar
-    // Get our custom nav bar
-   // CustomNavigationBar* customNavigationBar = (CustomNavigationBar*)self.navigationController.navigationBar;
+    self.tableView.backgroundColor = [UIColor clearColor];
     
-    // Set the nav bar's background
-    //UIImage *background = [UIImage imageNamed:@"BarBackground.png"];
-    //[customNavigationBar setBackgroundWith:background];
-    
-
-    // Instead of a custom back button, use the standard back button with a dark gray tint
-    //customNavigationBar.tintColor = [UIColor darkGrayColor];
+    //self.tableView.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"sunrise.jpg"]];
+    UIImage *image = [UIImage imageNamed:@"WorldMapGlowing.png"];
+    UIImageView *bgImage = [[UIImageView alloc] initWithImage:image];
+    bgImage.contentMode = UIViewContentModeScaleAspectFill;
+    self.tableView.backgroundView = bgImage;
+    self.searchDisplayController.searchResultsTableView.backgroundView = bgImage;
+    //initialize offlinemodedatasource
+    OflineModeDataStore = [[offlineModeDataStore alloc]init];
+    _dataItems = [[OflineModeDataStore countryList]retain];
+    //offlineList = [[OfflineList alloc] init];
     self.title = @"Countries";
     //self.navigationController.navigationBar.backItem.title = @"back";
 
@@ -83,15 +87,12 @@
    
     
     self.navigationItem.rightBarButtonItem = refreshButton;
-  
-    // Restore search term
-	if ([self savedSearchTerm])
-	{   
-        
-        [[[self searchDisplayController] searchBar] setText:[self savedSearchTerm]];
-    }
-    [self grabData];
+	
+   
     [refreshButton release];   
+    if (_dataItems.count ==0) {
+        [self grabData];
+    }
 }
 
 +(NSString *) dataFilePath{
@@ -110,13 +111,10 @@
         
         // NSMutableArray *allNames = [results objectForKey:@"country"];
         if (results != NULL) {
-            [self downloadPublicData:results]; 
+            [self performSelectorOnMainThread:@selector(downloadPublicData:) withObject:results waitUntilDone:YES];
+            //[self downloadPublicData:results]; 
             
-            for (int ndx=0; ndx <[results count]; ndx++) {
-                NSDictionary *jsonDict= [_dataItems objectAtIndex:ndx];
-                dataModel.countryName= [[jsonDict objectForKey:@"country"]objectForKey:@"name"];
-                dataModel.flagURL = [[jsonDict objectForKey:@"country"]objectForKey:@"flag_url"];
-            }
+          
             
         }else{
             NSLog(@"results is empty");
@@ -133,7 +131,7 @@
         NSError *error = [request error];
         if(error){
             UIAlertView *alert = [[UIAlertView alloc]
-                                      initWithTitle:@"Error" message:@"There is a Problem" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+                                      initWithTitle:@"Error" message:@"Please Check Your Network and Try Again" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
         [alert show];
         [alert release];
         }//alert
@@ -142,13 +140,44 @@
     
 }
 -(void) downloadPublicData :(NSMutableArray *) array{
-    self._dataItems = array;
-    //releod table with fresh data
-    [self.tableView reloadData];
-
     
+    [self performSelectorInBackground:@selector(synchronizeData:) withObject:array];
+    NSLog(@"process sent to background thread");
     
 }
+-(void)reloadTable{
+    
+    [_dataItems release];
+    self._dataItems = [[OflineModeDataStore countryList]retain];
+    [self.tableView reloadData];
+    NSLog(@"table reloaded from notification");
+}
+
+//method perfomed in background thread
+- (void)synchronizeData:(NSArray*)data 
+{
+    
+    //listen for a notification with the name of the identifier
+	[[NSNotificationCenter defaultCenter] addObserver:self 
+                                             selector:@selector(dataDidSynchronize:) 
+                                                 name:@"countryListDidSynchronize" 
+                                               object:nil];
+    NSLog(@"synchronize data method called");
+    
+    [OflineModeDataStore synchronizecountryList:data];
+
+}
+//this is also in the background thread
+- (void)dataDidSynchronize:(NSNotification*)notification 
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    //update the UI on the main thread
+   NSLog(@"refreshUI called on main thread with notif ");
+    [self performSelectorOnMainThread:@selector(reloadTable) withObject:nil waitUntilDone:YES];
+}
+
+
 -(UIImage *)scale:(UIImage *)image toSize:(CGSize)size{
     
     UIGraphicsBeginImageContext(size);
@@ -159,59 +188,7 @@
     return scaledImage;
 }
 
-- (void)handleSearchForTerm:(NSString *)searchTerm
-{
-	NSLog(@">>> Entering %s <<<", __PRETTY_FUNCTION__);
-	
-	[self setSavedSearchTerm:searchTerm];
-	
-	if ([self searchResults] == nil)
-	{
-		NSMutableArray *array = [[NSMutableArray alloc] init];
-		[self setSearchResults:array];
-        //[self setReverse:array];
-		[array release], array = nil;
-	}
-	
-	[[self searchResults] removeAllObjects];
-    if ([self reverse] == nil){
-        NSMutableArray *array = [[NSMutableArray alloc] init];
-		[self setReverse:array];
-        //[self setReverse:array];
-		[array release], array = nil;
-        
-    }else {
-    [[self reverse] removeAllObjects];
-	}
-    if ([self imageURL] == nil){
-        NSMutableArray *array = [[NSMutableArray alloc] init];
-		[self setImageURL:array];
-        //[self setReverse:array];
-		[array release], array = nil;
-        
-    }else {
-        [[self imageURL ] removeAllObjects];
-	}
-    
-	if ([[self savedSearchTerm] length] != 0)
-	{   
-       		for (NSDictionary *dict in  _dataItems)
-		{   
-            NSString *currentString = [[dict objectForKey:@"country"]objectForKey:@"name"];
-            NSString *thumb = [[dict objectForKey:@"country"] objectForKey:@"flag_url"];
 
-			if ([currentString rangeOfString:searchTerm options:NSCaseInsensitiveSearch].location != NSNotFound)
-			{
-				[[self searchResults] addObject:currentString];
-                [[self reverse] addObject:dict];
-                [[self imageURL] addObject:thumb];
-               // NSLog(@"reverse %@",reverse);
-			}
-		}
-	}
-	
-	NSLog(@"<<< Leaving %s >>>", __PRETTY_FUNCTION__);
-}
 
 
 - (void)viewDidUnload
@@ -260,22 +237,16 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    NSInteger rows;
-    if (_dataItems.count >0){ 
-        rows = [_dataItems count]; 
+    NSInteger rowNumber;
+    if (fetchedObjects !=nil) {
+        rowNumber = [fetchedObjects count];
+    }else{
+        rowNumber = [[[OflineModeDataStore countryList]valueForKey:@"name"]count];
     }
-    if (tableView ==[[self searchDisplayController] searchResultsTableView]){
-        rows = [[self searchResults] count];
-    }if (_dataItems.count ==0) {
-        rows=1;
-    } { 
-        
-    }
-    NSLog(@"rows is: %d", rows);
-    return rows;
+    return rowNumber;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{    return 83;
+{    return 50;
 }/*
 -(NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView{
     NSArray *index = [NSArray arrayWithObjects:@"A",@"B",@"C",@"D",@"E",@"F",@"G",@"H",@"I",@"J",@"K",
@@ -288,32 +259,37 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"Cell";
-    static NSString *PlaceHolderCellIdentifier = @"placeholder";
+    //[[[OflineModeDataStore countryList]valueForKey:@"name"]objectAtIndex:indexPath.row];static NSString *PlaceHolderCellIdentifier = @"placeholder";
+    contentForthisRow = nil;
+    NSString *urlForThumb=nil;
+    if (tableView ==self.tableView) {
+        
     
-    //add a placeholder cell as we await data
-    int nodeCount = [self._dataItems count];
-    if (nodeCount == 0 && indexPath.row ==0) {
-        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:PlaceHolderCellIdentifier ];
-        if (cell == nil) {
-            cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:PlaceHolderCellIdentifier] autorelease];
-            cell.textLabel.textAlignment = UITextAlignmentCenter;
-            cell.selectionStyle = UITableViewCellEditingStyleNone;
+    offlineList = [OflineModeDataStore.fetchedResultsController objectAtIndexPath:indexPath];
+    //NSLog(@"oflinelist %@", offlineList.name);
+        contentForthisRow =[[_dataItems objectAtIndex:[indexPath row]] valueForKey:@"name"];
+    //[contentForthisRow stringByAppendingString:[offlineList name]];
+        NSString* url   =[[_dataItems objectAtIndex:[indexPath row]] valueForKey:@"thumbnail"];
+        urlForThumb = url;
+        if ((NSNull *)url == [NSNull null]) {
+            NSLog(@"flag url is empty");
+            url = @"http://bentilrden.com/images/placeholder.png";
+            urlForThumb = url;
         }
+    }if (tableView == self.searchDisplayController.searchResultsTableView) {
+        offlineList = [OflineModeDataStore.fetchedResultsControllerSearch objectAtIndexPath:indexPath];
         
-        cell.textLabel.text = @"                  Loading.....";
-        
-        return cell;
+        //NSLog(@"oflinelist %@", offlineList.name);
+       contentForthisRow = offlineList.name;
+        NSString* url   = offlineList.thumbnail;
+        urlForThumb = url;
+        if ((NSNull *)url == [NSNull null]) {
+            NSLog(@"flag url is empty");
+            url = @"http://bentilrden.com/images/placeholder.png";
+            urlForThumb = url;
+        }
     }
-    NSString *contentForthisRow =nil;
-    NSString *urlForThumb = nil;
-    NSInteger row = [indexPath row];
-    NSDictionary *jsonDict= [_dataItems objectAtIndex:[indexPath row]];
-    contentForthisRow = [[jsonDict objectForKey:@"country"]objectForKey:@"name"];
-    NSString* url   = [NSString stringWithFormat:@"%@",[[jsonDict objectForKey:@"country"]objectForKey:@"flag_url"]];
-    if ((NSNull *)url == [NSNull null]) {
-        NSLog(@"flag url is empty");
-        url = @"http://bentilrden.com/images/placeholder.png";
-    }
+    
     
         
     countryCustomCell *cell = nil;
@@ -328,74 +304,104 @@
                 cell = (countryCustomCell *)currentObject;
                 CALayer *layer = cell.imageView.layer;
                 layer.masksToBounds = YES;
-                [layer setCornerRadius:8.0];
-                layer.borderWidth=1.5;
-                layer.borderColor=[[UIColor grayColor] CGColor];
+                [layer setCornerRadius:1.0];
+                layer.borderWidth=0.8;
+                layer.borderColor=[[UIColor blackColor] CGColor];
                 break;
             }
         }
     }
     
     // Configure the cell...
-    if ((tableView == [[self searchDisplayController] searchResultsTableView])&
-    (searchResults !=nil)){
-        contentForthisRow = [[self searchResults] objectAtIndex:row];
-        urlForThumb = [[self imageURL] objectAtIndex:row];
-        if ((NSNull *)urlForThumb == [NSNull null]) {
-            NSLog(@"flag url is empty");
-            urlForThumb = @"http://bentilden.com/images/placeholder.png";
-        }else{
-        url = urlForThumb;
-        }
-    }if (_dataItems !=nil){
-     
-
-        [cell.imageView setImageWithURL:[NSURL URLWithString:url]
+        [cell.imageView setImageWithURL:[NSURL URLWithString:urlForThumb]
                        placeholderImage:[UIImage imageNamed:@"placeholder.jpg"]];
 
          
+        //cell.textLabel.text = contentForthisRow;
         cell.textLabel.text = contentForthisRow;
-    } else {
-        cell.textLabel.text = @"    Loading...";
-    }
+        
+   
+    
     
     return cell;
 }
 
+#pragma mark - SearchController Delegates
 -(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString{
     
-    [self handleSearchForTerm:searchString];
+    
     return YES;
 }
 
 -(void)searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller{
+    
+    [self.tableView reloadData];
+}
+
+-(void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+{   
+    //NSLog(@"search text %@", searchText);
+    NSError *error = nil;
+    
+        
+        NSPredicate *predicate =[NSPredicate predicateWithFormat:@"name  contains[cd] %@", searchText];
+        [self.OflineModeDataStore.fetchedResultsControllerSearch.fetchRequest setPredicate:predicate];
+    	
+   
+    if (![OflineModeDataStore.fetchedResultsControllerSearch performFetch:&error])
+    {
+        // Handle error
+        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+        exit(-1);  // Fail
+    }
+    
+    // this array is just used to tell the table view how many rows to show
+    fetchedObjects = OflineModeDataStore.fetchedResultsControllerSearch.fetchedObjects;
+    
+    
+}
+-(void)searchBarCancelButtonClicked:(UISearchBar *)searchBar{
+    NSLog(@"searchbar cancel called");
+    NSPredicate *predicate =[NSPredicate predicateWithFormat:nil];
+    [OflineModeDataStore.fetchedResultsControllerSearch.fetchRequest setPredicate:predicate];
+    fetchedObjects = nil;
+    [self.tableView reloadData];
+}
+//not really part of the delegate but deserves to be here
+- (void)handleSearchForTerm:(NSString *)searchTerm
+{
+    // dismiss the search keyboard
+    [searchBar resignFirstResponder];
+    
+    // reload the table view
     [self.tableView reloadData];
 }
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+ 
     // Navigation logic may go here. Create and push another view controller.
-    NSMutableArray *items;
+    NSManagedObject *theManagedObject;
     
-    if ((tableView == [[self searchDisplayController] searchResultsTableView])&
-        (searchResults !=nil)){
-               items = [[[NSMutableArray alloc] initWithArray:reverse]autorelease ];
+    if (tableView == [[self searchDisplayController] searchResultsTableView]){
+        theManagedObject =[self.OflineModeDataStore.fetchedResultsControllerSearch objectAtIndexPath:indexPath];
+        NSLog(@"searchTableview selected with object %@",theManagedObject);
 
     }else{
-        items = [[NSMutableArray alloc] initWithArray:_dataItems];
-        
+        theManagedObject = [_dataItems objectAtIndex:indexPath.row];//[self.OflineModeDataStore.fetchedResultsController objectAtIndexPath:indexPath];
+        NSLog(@"myTableview selected with object %@",theManagedObject);
     }
     //NSLog(@"the index path %@",[indexPath row]);
 
-     countriesDetailView *detailViewController = [[countriesDetailView alloc] initWithItem:items :[indexPath row]];
+     countriesDetailView *detailViewController = [[countriesDetailView alloc] initWithItem:theManagedObject];
    
      //get the data
      // Pass the selected object to the new view controller.
      [self.navigationController pushViewController:detailViewController animated:YES];
 
      [detailViewController release];
-     
+    theManagedObject = nil;
 }
 
 @end
