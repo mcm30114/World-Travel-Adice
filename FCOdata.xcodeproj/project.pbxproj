@@ -38,7 +38,6 @@
 		636D408013D5EBFD00EEA9F6 /* asyncimageview.m in Sources */ = {isa = PBXBuildFile; fileRef = 636D407F13D5EBFD00EEA9F6 /* asyncimageview.m */; };
 		636D408C13D61F9500EEA9F6 /* countriesDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 636D408A13D61F9500EEA9F6 /* countriesDetailView.m */; };
 		636D408D13D61F9500EEA9F6 /* countriesDetailView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 636D408B13D61F9500EEA9F6 /* countriesDetailView.xib */; };
-		63B9735D140D27FE00627062 /* libz.1.2.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 63B9735C140D27FE00627062 /* libz.1.2.3.dylib */; };
 		63D4281C13E778BB008EA565 /* iTunesArtWork in Resources */ = {isa = PBXBuildFile; fileRef = 63D4281813E778BB008EA565 /* iTunesArtWork */; };
 		63D4282413E77C19008EA565 /* icon-settings.png in Resources */ = {isa = PBXBuildFile; fileRef = 63D4282013E77C18008EA565 /* icon-settings.png */; };
 		63D4282513E77C19008EA565 /* icon-settings@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 63D4282113E77C18008EA565 /* icon-settings@2x.png */; };
@@ -60,6 +59,7 @@
 		63DAD54513DA4095005118D8 /* UIImageView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 63DAD54113DA4095005118D8 /* UIImageView+WebCache.m */; };
 		63DAD54B13DC7B9A005118D8 /* template.txt in Resources */ = {isa = PBXBuildFile; fileRef = 63DAD54A13DC7B9A005118D8 /* template.txt */; };
 		63EFB3E4140B08F2006BF070 /* Default.PNG in Resources */ = {isa = PBXBuildFile; fileRef = 63EFB3E3140B08F2006BF070 /* Default.PNG */; };
+		9677FB3C14BB231D0024884B /* libz.1.1.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9677FB3B14BB231D0024884B /* libz.1.1.3.dylib */; };
 		B9B618D513D2071C004EDAA3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9B618D413D2071C004EDAA3 /* UIKit.framework */; };
 		B9B618D713D2071C004EDAA3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9B618D613D2071C004EDAA3 /* Foundation.framework */; };
 		B9B618D913D2071C004EDAA3 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9B618D813D2071C004EDAA3 /* CoreGraphics.framework */; };
@@ -149,7 +149,6 @@
 		636D407F13D5EBFD00EEA9F6 /* asyncimageview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = asyncimageview.m; sourceTree = "<group>"; };
 		636D408A13D61F9500EEA9F6 /* countriesDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = countriesDetailView.m; sourceTree = "<group>"; };
 		636D408B13D61F9500EEA9F6 /* countriesDetailView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = countriesDetailView.xib; sourceTree = "<group>"; };
-		63B9735C140D27FE00627062 /* libz.1.2.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.2.3.dylib; path = usr/lib/libz.1.2.3.dylib; sourceTree = SDKROOT; };
 		63D4281813E778BB008EA565 /* iTunesArtWork */ = {isa = PBXFileReference; lastKnownFileType = file; path = iTunesArtWork; sourceTree = "<group>"; };
 		63D4282013E77C18008EA565 /* icon-settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-settings.png"; sourceTree = "<group>"; };
 		63D4282113E77C18008EA565 /* icon-settings@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-settings@2x.png"; sourceTree = "<group>"; };
@@ -184,6 +183,7 @@
 		63DAD54713DADF44005118D8 /* UIImageCategories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIImageCategories.h; sourceTree = "<group>"; };
 		63DAD54A13DC7B9A005118D8 /* template.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = template.txt; sourceTree = "<group>"; };
 		63EFB3E3140B08F2006BF070 /* Default.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.PNG; sourceTree = "<group>"; };
+		9677FB3B14BB231D0024884B /* libz.1.1.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.1.3.dylib; path = usr/lib/libz.1.1.3.dylib; sourceTree = SDKROOT; };
 		B9B618D013D2071C004EDAA3 /* Travel Advice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Travel Advice.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B9B618D413D2071C004EDAA3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		B9B618D613D2071C004EDAA3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -268,7 +268,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63B9735D140D27FE00627062 /* libz.1.2.3.dylib in Frameworks */,
+				9677FB3C14BB231D0024884B /* libz.1.1.3.dylib in Frameworks */,
 				630947901403DF520064D59F /* CoreData.framework in Frameworks */,
 				63051D2013E6D89800C2B382 /* iAd.framework in Frameworks */,
 				63051D0913E37CBD00C2B382 /* CoreLocation.framework in Frameworks */,
@@ -402,7 +402,7 @@
 		B9B618C513D2071C004EDAA3 = {
 			isa = PBXGroup;
 			children = (
-				63B9735C140D27FE00627062 /* libz.1.2.3.dylib */,
+				9677FB3B14BB231D0024884B /* libz.1.1.3.dylib */,
 				6309478F1403DF520064D59F /* CoreData.framework */,
 				6309478E1403DF270064D59F /* coreData */,
 				6309478A1403DDBA0064D59F /* offlineMode */,
@@ -814,7 +814,7 @@
 				PROVISIONING_PROFILE = "010A7C1C-B0A4-402D-9EDA-4E2992B55FAC";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "010A7C1C-B0A4-402D-9EDA-4E2992B55FAC";
 				"PROVISIONING_PROFILE[sdk=iphonesimulator4.1]" = "010A7C1C-B0A4-402D-9EDA-4E2992B55FAC";
-				SDKROOT = iphoneos4.3;
+				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 				WRAPPER_EXTENSION = app;
 			};
@@ -885,7 +885,7 @@
 				PRODUCT_NAME = "Travel Advice";
 				PROVISIONING_PROFILE = "010A7C1C-B0A4-402D-9EDA-4E2992B55FAC";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "010A7C1C-B0A4-402D-9EDA-4E2992B55FAC";
-				SDKROOT = iphoneos4.3;
+				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = NO;
 				WRAPPER_EXTENSION = app;
 			};
@@ -914,7 +914,7 @@
 				PROVISIONING_PROFILE = "010A7C1C-B0A4-402D-9EDA-4E2992B55FAC";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "010A7C1C-B0A4-402D-9EDA-4E2992B55FAC";
 				"PROVISIONING_PROFILE[sdk=iphonesimulator4.1]" = "010A7C1C-B0A4-402D-9EDA-4E2992B55FAC";
-				SDKROOT = iphoneos4.3;
+				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 				WRAPPER_EXTENSION = app;
 			};

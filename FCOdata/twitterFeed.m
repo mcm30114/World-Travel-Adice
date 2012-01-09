@@ -48,6 +48,7 @@
     self.title = @"@ForeignOffice";
     _items = [[NSArray alloc] init];
     [self grabURLInBackground];
+    
 }
 
 - (void)viewDidUnload
@@ -60,6 +61,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [self threadImageDownloader];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -190,10 +192,9 @@
     cell.detailTextLabel.font = [UIFont fontWithName:@"Helvetica" size:12];
 	cell.detailTextLabel.text = detail;
 	//cell.detailTextLabel.text =[[tweets objectAtIndex:indexPath.row] objectForKey:@"from_user"];
-	
-	NSURL *url = [NSURL URLWithString:[aTweet objectForKey:@"profile_image_url"]];
-    UIImage *image = [[UIImage alloc] initWithData:[NSData dataWithContentsOfURL:url]];
-    [cell.imageView setImage:image];
+    if (thumbnails.count >0) {
+        cell.imageView.image = [thumbnails objectAtIndex:indexPath.row];   
+    }
     CALayer *layer = cell.imageView.layer;
     layer.masksToBounds = YES;
     layer.borderWidth=1.0;
@@ -203,6 +204,25 @@
     return cell;
 }
 
+- (void)threadImageDownloader{
+    thumbnails = [[NSMutableArray alloc] init];
+    backgroundThread = dispatch_queue_create("com.edwinb.traveladvice", NULL);
+    dispatch_sync(backgroundThread, ^(void){
+        for (int x =0; x<_items.count; x++) {
+            NSDictionary *aTweet = [_items objectAtIndex:x];
+            NSURL *url = [NSURL URLWithString:[aTweet objectForKey:@"profile_image_url"]];
+            UIImage *image = [[UIImage alloc] initWithData:[NSData dataWithContentsOfURL:url]];
+            
+            [thumbnails addObject:image];
+        }
+        dispatch_sync(dispatch_get_main_queue(), ^(void){
+            [self.tableView reloadData];
+        });
+        
+    });
+    dispatch_release(backgroundThread);
+    
+}
 /*
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath

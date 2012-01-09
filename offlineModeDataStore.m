@@ -105,8 +105,9 @@
                 [list setLatitude:[NSNumber numberWithDouble:[lat doubleValue]]];
             }else{
                 NSString *lat = [latArray objectAtIndex:0];
-               
+                if ((NSNull *)lat != [NSNull null]) {
                 [list setLatitude:[NSNumber numberWithDouble:[lat doubleValue]]];
+                }
             }
             
             //============================save the longitude============================
@@ -118,9 +119,9 @@
                 [list setLongitude:[NSNumber numberWithDouble:[lng doubleValue]]];
             }else{
                 NSString *lng = [longArray objectAtIndex:0];
-                
+                if ((NSNull *)lng != [NSNull null]) {
                 [list setLongitude:[NSNumber numberWithDouble:[lng doubleValue]]];
-            }
+                }}
             
             
             //============================save the officeHours============================

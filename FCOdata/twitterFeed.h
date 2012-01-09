@@ -11,9 +11,12 @@
 
 @interface twitterFeed : UITableViewController {
     NSArray *_items;
+    dispatch_queue_t backgroundThread;
+    NSMutableArray *thumbnails;
 }
 @property (nonatomic, retain) NSArray *_items;
 
 -(void) dataItems:(NSArray *) theResponse;
 - (void)grabURLInBackground;
+- (void)threadImageDownloader;
 @end
