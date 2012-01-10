@@ -202,19 +202,23 @@
     if (!newsItems) {
         cell.newsTitle.text = @"     Loading";
     }else{
-    cell.newsTitle.text = [[newsItems objectAtIndex:[indexPath row]]valueForKey:@"titles"];
-    //cell.newsSummary.numberOfLines = 3;
-    cell.newsSummary.text = [[newsItems objectAtIndex:[indexPath row]]valueForKey:@"summary"];
-        cell.dateLabel.text = [[newsItems objectAtIndex:[indexPath row]]valueForKey:@"pudDate"];
+        cell.newsTitle.text = [[newsItems objectAtIndex:[indexPath row]]valueForKey:@"titles"];
+        //cell.newsSummary.numberOfLines = 3;
+        cell.newsSummary.text = [[newsItems objectAtIndex:[indexPath row]]valueForKey:@"summary"];
+//        cell.dateLabel.text = [[newsItems objectAtIndex:[indexPath row]]valueForKey:@"pudDate"];
+        
+        /*formate the date entry */
+        NSString *date = [[NSString alloc] init];
+        date = [[newsItems objectAtIndex:[indexPath row]]valueForKey:@"pudDate"];
+        NSArray *date2 = [date componentsSeparatedByString:@" "];
+        [cell.dateLabel setText:[date2 objectAtIndex:0]];
+        
+        NSLog(@"news date formatted %@", date2);
+
     }
   
     
-    /*formate the date entry 
-    NSString *theDate = [pubDate objectAtIndex:[indexPath row]];
-    NSArray *trimDate = [theDate componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"T+"]];
-    cell.dateLabel.text = [NSString stringWithFormat:@"%@,%@",[trimDate objectAtIndex:0],[trimDate objectAtIndex:1]];
-    
-    */
+        
     
     return cell;
 }

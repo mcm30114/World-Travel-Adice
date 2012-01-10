@@ -61,7 +61,6 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self threadImageDownloader];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -101,7 +100,8 @@
     if (responseString !=nil) {
         NSArray *allTweets = [results objectForKey:@"results"];
         [self dataItems:allTweets];
-        [self.tableView reloadData];
+        //[self.tableView reloadData];
+        [self threadImageDownloader];
     }
 
     
@@ -192,14 +192,15 @@
     cell.detailTextLabel.font = [UIFont fontWithName:@"Helvetica" size:12];
 	cell.detailTextLabel.text = detail;
 	//cell.detailTextLabel.text =[[tweets objectAtIndex:indexPath.row] objectForKey:@"from_user"];
-    if (thumbnails.count >0) {
-        cell.imageView.image = [thumbnails objectAtIndex:indexPath.row];   
+    if ([thumbnails count] >0) {
+        [cell.imageView setImage:[thumbnails objectAtIndex:indexPath.row]];
+        CALayer *layer = cell.imageView.layer;
+        layer.masksToBounds = YES;
+        layer.borderWidth=1.0;
+        layer.borderColor=[[UIColor blackColor] CGColor];
+        [layer setCornerRadius:2.0];
     }
-    CALayer *layer = cell.imageView.layer;
-    layer.masksToBounds = YES;
-    layer.borderWidth=1.0;
-    layer.borderColor=[[UIColor blackColor] CGColor];
-    [layer setCornerRadius:2.0];
+    
 	cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }
@@ -207,15 +208,18 @@
 - (void)threadImageDownloader{
     thumbnails = [[NSMutableArray alloc] init];
     backgroundThread = dispatch_queue_create("com.edwinb.traveladvice", NULL);
-    dispatch_sync(backgroundThread, ^(void){
-        for (int x =0; x<_items.count; x++) {
-            NSDictionary *aTweet = [_items objectAtIndex:x];
-            NSURL *url = [NSURL URLWithString:[aTweet objectForKey:@"profile_image_url"]];
-            UIImage *image = [[UIImage alloc] initWithData:[NSData dataWithContentsOfURL:url]];
+    dispatch_queue_t main_queue = dispatch_get_main_queue();
+    dispatch_async(backgroundThread, ^{
+        
+        for (int x=0; x<[_items count]; x++) {
             
+            NSURL *url = [NSURL URLWithString:[[_items objectAtIndex:x] objectForKey:@"profile_image_url"]];
+            UIImage *image = [[UIImage alloc] initWithData:[NSData dataWithContentsOfURL:url]];
+            NSLog(@"urls %@", url);
             [thumbnails addObject:image];
         }
-        dispatch_sync(dispatch_get_main_queue(), ^(void){
+        dispatch_sync(main_queue, ^{
+            
             [self.tableView reloadData];
         });
         

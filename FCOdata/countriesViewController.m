@@ -44,22 +44,25 @@
 
 - (void)dealloc
 {
-    [super dealloc];
+   
     [dataModel release];
     [_dataItems release];
     [_response release];
     [searchBar release];
     [searchResults release];
     [savedSearchTerm release];
-     [  reverse release];
-     [  imageURL release];
+    [reverse release];
+    [imageURL release];
+    
+     [super dealloc];
 }
 
 - (void)didReceiveMemoryWarning
 {
     // Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
-    
+    [_dataItems release];
+    [searchResults release];
     // Release any cached data, images, etc that aren't in use.
 }
 
@@ -69,13 +72,11 @@
 {
     [super viewDidLoad];
     self.tableView.backgroundColor = [UIColor clearColor];
-    
-    //self.tableView.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"sunrise.jpg"]];
-    UIImage *image = [UIImage imageNamed:@"WorldMapGlowing.png"];
-    UIImageView *bgImage = [[UIImageView alloc] initWithImage:image];
-    bgImage.contentMode = UIViewContentModeScaleAspectFill;
-    self.tableView.backgroundView = bgImage;
-    self.searchDisplayController.searchResultsTableView.backgroundView = bgImage;
+//    UIImage *image = [UIImage imageNamed:@"WorldMapGlowing.png"];
+//    UIImageView *bgImage = [[UIImageView alloc] initWithImage:image];
+//    bgImage.contentMode = UIViewContentModeScaleAspectFill;
+//    self.tableView.backgroundView = bgImage;
+//    self.searchDisplayController.searchResultsTableView.backgroundView = bgImage;
     //initialize offlinemodedatasource
     OflineModeDataStore = [[offlineModeDataStore alloc]init];
     _dataItems = [[OflineModeDataStore countryList]retain];
@@ -83,13 +84,11 @@
     self.title = @"Countries";
     //self.navigationController.navigationBar.backItem.title = @"back";
 
-    UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(grabData)];
-   
-    
-    self.navigationItem.rightBarButtonItem = refreshButton;
-	
-   
-    [refreshButton release];   
+//    UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(grabData)];
+//    self.navigationItem.rightBarButtonItem = refreshButton;
+//	
+//   
+//    [refreshButton release];   
     if (_dataItems.count ==0) {
         [self grabData];
     }
