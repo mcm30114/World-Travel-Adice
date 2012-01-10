@@ -9,7 +9,7 @@
 #import "FCOdataAppDelegate.h"
 #import "FlurryAPI.h"
 
-#define FLURRY_API  @"YOUR_FLURRY_API_CODE_HERE"
+#define FLURRY_API  @"YQX5QHI2LD4G8VSL8RK39"
 @implementation FCOdataAppDelegate
 
 
